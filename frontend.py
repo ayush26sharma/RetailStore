@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import messagebox
+import tkinter as tk
 from tkinter.ttk import Treeview
 import pymysql as pm
 import numpy as np
@@ -7,7 +8,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from PIL import ImageTk,Image
 import matplotlib.pyplot as plt
-import frontend_customer
 
 
 if __name__ == '__main__':
@@ -106,6 +106,9 @@ if __name__ == '__main__':
             for i in rows:
                 dict_employee[i[0]] = i[1]
             mydb.commit()
+
+
+
             frame3 = Frame(master_new,bg = "#FFDCE7")
             heading2 = Label(frame3, bg="deep sky blue", height=30, width=100, relief="raised", borderwidth=3)
             heading2.config(highlightbackground="purple", highlightthickness=2)
@@ -131,13 +134,91 @@ if __name__ == '__main__':
                 frame1.pack(side = "top", fill = "both")
                 frame3.forget()
 
+            def get_frame_customer(master):
+
+                frame = Frame(master, bg="#FFDCE7")
+                def back():
+                    frame3.pack(side = "top", fill = "both")
+                    frame.forget()
+
+                heading2 = Label(frame, bg="deep sky blue", height=30, width=100, relief="raised", borderwidth=3)
+                heading2.config(highlightbackground="purple", highlightthickness=2)
+                # heading2.pack(padx=250, pady=150)
+                heading_2 = Label(frame, text="Customer", height=2, bg="#FFDCE7", font=("Helvetica Bold 16", 28))
+                heading_2.pack(padx=0)
+                button = Button(frame, text="cart", bg="deep sky blue", fg="white", font=("Arial", 16),
+                                command=lambda: True)
+                button.place(x=1050, y=10)
+                button = Button(frame, text="logout", bg="deep sky blue", fg="white", font=("Arial", 16),
+                                command=back)
+                button.place(x=1150, y=10)
+
+                canvas = Canvas(frame, width=1200, height=700)
+                canvas.configure(scrollregion=(0, 0, 0, 1000))
+                canvas.pack(side="left", fill="y", expand=True, pady=100)
+
+                vbar = Scrollbar(frame, orient='vertical', command=canvas.yview)
+                vbar.pack(side='right', fill='y')
+
+                canvas.config(yscrollcommand=vbar.set)
+                # products =
+                cur=mydb.cursor()
+                sql = "SELECT PRODUCT_ID,PRODUCT_NAME,UNIT_PRICE,DISCOUNT,UNIT_WEIGHT from retailstore.PRODUCT;"
+                cur.execute(sql)
+                res = cur.fetchall()
+                print(res)
+                res = [[2*i,2*i+1,'product','name'] for i in range(50)]
+                r,c  = 0,0
+                order ={}
+                order_label = {}
+
+                def orderneg():
+                    return
+                    order[label] = -1
+                    order_label[label] = -1
+                    print(order)
+                    print(order_label)
+
+                def orderpos():
+                    pass
+                for i in res:
+                    for j in i:
+                        label = Label(canvas, text=j, bg="deep sky blue", fg="white", font=("Arial", 16))
+                        label.grid(row=r, column=c)
+                        c+=1
+                    buttonneg = Button(canvas, text="-", bg="deep sky blue", fg="white", font=("Arial", 16),
+                                command=lambda: orderneg(i[0]))
+                    buttonneg.grid(row=r, column=c)
+                    c+=1
+                    label = Label(canvas, text="0", bg="deep sky blue", fg="white", font=("Arial", 16))
+                    order_label[i[0]] = label
+                    label.grid(row=r, column=c)
+                    c+=1
+                    buttonpos = Button(canvas, text="+", bg="deep sky blue", fg="white", font=("Arial", 16),
+                                command=lambda: orderpos(i[0]))
+                    buttonpos.grid(row=r, column=c)
+                    c+=1
+                    r+=1
+                    c=0
+
+
+                frame.place(x=0, y=118)
+                frame.pack(side="top", fill="both")
+                frame.forget()
+                return frame
             def callbac():
+                #todo
+                frame_customer = get_frame_customer(master_new)
+                frame_customer.pack(side="top", fill="both")
+                frame3.forget()
+                return
                 passw = heading6.get()
                 user = heading4.get()
                 if user in dict_customers.keys() and passw in dict_customers.values() and dict_customers[user]==passw:
                     a = messagebox.askquestion("Success", "Would you like to continue?")
                     if a == "yes":
                         messagebox.showinfo("Success", "You will be directed to the page in a short while")
+
 
                     else:
                         heading6.delete(first=0, last=100)
@@ -406,6 +487,8 @@ if __name__ == '__main__':
             frame2.pack(side="top", fill="both")
             frame2.forget()
             frames["next"] = frame2
+
+
             master_new.mainloop()
         # button_1 = Button(master, text="Click Me!", height = 2,width = 10,bg="light blue", command=f1)
         # button_1.place(x=600, y=450)
