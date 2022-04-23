@@ -146,61 +146,73 @@ if __name__ == '__main__':
                 # heading2.pack(padx=250, pady=150)
                 heading_2 = Label(frame, text="Customer", height=2, bg="#FFDCE7", font=("Helvetica Bold 16", 28))
                 heading_2.pack(padx=0)
-                button = Button(frame, text="cart", bg="deep sky blue", fg="white", font=("Arial", 16),
+                button = Button(frame, text="cart", bg="deep sky blue", fg="black", font=("Arial", 16),
                                 command=lambda: True)
                 button.place(x=1050, y=10)
-                button = Button(frame, text="logout", bg="deep sky blue", fg="white", font=("Arial", 16),
+                button = Button(frame, text="logout", bg="deep sky blue", fg="black", font=("Arial", 16),
                                 command=back)
                 button.place(x=1150, y=10)
 
-                canvas = Canvas(frame, width=1200, height=700)
-                canvas.configure(scrollregion=(0, 0, 0, 1000))
-                canvas.pack(side="left", fill="y", expand=True, pady=100)
+                button = Button(frame, text="Add to cart", bg="deep sky blue", fg="black", font=("Arial", 16),
+                                command=back)
+                button.place(x=1050, y=500)
+
+                canvas = Canvas(frame, height=800)
+                framescroll = Frame(canvas, bg="#FFDCE7")
+                canvas.create_window((0, 0), window=framescroll, anchor='nw')
+                # canvas.configure(scrollregion=(0, 0, 0, 1000))
+                canvas.pack(side="left", fill="y",padx = 100,pady = 20)
 
                 vbar = Scrollbar(frame, orient='vertical', command=canvas.yview)
+
                 vbar.pack(side='right', fill='y')
 
+
                 canvas.config(yscrollcommand=vbar.set)
+                framescroll.bind('<Configure>', lambda event, canvas=canvas: canvas.configure(scrollregion=canvas.bbox('all')))
                 # products =
                 cur=mydb.cursor()
                 sql = "SELECT PRODUCT_ID,PRODUCT_NAME,UNIT_PRICE,DISCOUNT,UNIT_WEIGHT from retailstore.PRODUCT;"
                 cur.execute(sql)
                 res = cur.fetchall()
                 print(res)
-                res = [[2*i,2*i+1,'product','name'] for i in range(50)]
+                res = [[str(2*i),2*i+1,'product','name'] for i in range(100)]
                 r,c  = 0,0
                 order ={}
                 order_label = {}
 
-                def orderneg():
-                    return
-                    order[label] = -1
-                    order_label[label] = -1
-                    print(order)
-                    print(order_label)
+                def orderneg(pid):
+                    if pid not in order or order[pid] == 0:
+                        return
+                    order[pid] -= 1
+                    order_label[pid].config(text=str(order[pid]))
 
-                def orderpos():
-                    pass
+
+                def orderpos(pid):
+                    if pid not in order:
+                        order[pid] = 0
+                    order[pid] += 1
+                    order_label[pid].config(text=str(order[pid]))
                 for i in res:
                     for j in i:
-                        label = Label(canvas, text=j, bg="deep sky blue", fg="white", font=("Arial", 16))
+                        label = Label(framescroll, text=j, bg="deep sky blue", fg="black", font=("Arial", 16))
                         label.grid(row=r, column=c)
                         c+=1
-                    buttonneg = Button(canvas, text="-", bg="deep sky blue", fg="white", font=("Arial", 16),
-                                command=lambda: orderneg(i[0]))
+
+                    buttonneg = Button(framescroll, text="-", bg="deep sky blue", fg="black", font=("Arial", 16),
+                                command=lambda pid = i[0]: orderneg(pid))
                     buttonneg.grid(row=r, column=c)
                     c+=1
-                    label = Label(canvas, text="0", bg="deep sky blue", fg="white", font=("Arial", 16))
+                    label = Label(framescroll, text="0", bg="deep sky blue", fg="black", font=("Arial", 16))
                     order_label[i[0]] = label
                     label.grid(row=r, column=c)
                     c+=1
-                    buttonpos = Button(canvas, text="+", bg="deep sky blue", fg="white", font=("Arial", 16),
-                                command=lambda: orderpos(i[0]))
+                    buttonpos = Button(framescroll, text="+", bg="deep sky blue", fg="black", font=("Arial", 16),
+                                command=lambda pid = i[0]: orderpos(pid))
                     buttonpos.grid(row=r, column=c)
                     c+=1
                     r+=1
                     c=0
-
 
                 frame.place(x=0, y=118)
                 frame.pack(side="top", fill="both")
