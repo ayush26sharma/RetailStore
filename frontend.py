@@ -7,6 +7,8 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.figure import Figure
 from PIL import ImageTk,Image
 import matplotlib.pyplot as plt
+import frontend_customer
+
 
 if __name__ == '__main__':
     mydb = pm.connect(host="localhost",  # setting up connection
@@ -51,41 +53,41 @@ if __name__ == '__main__':
         print("TABLES ALREADY EXIST!")
     finally:
         print("Hello World!")
-        master = Tk()
-        master.geometry("1280x860")
-        master.config(background="#FFDCE7")
-        heading_1 = Label(master, text="CSE-202 | DataBase Management Systems, Winter-2022", height=2, bg="#B7E9F7",
-                        font=("Ink Free", 32), borderwidth=5, relief="raised")
-        heading_1.pack(side="top", fill="x")
-
-        heading_2 = Label(master, text = "To view the full application,click the button below!", height = 2, bg="#FFDCE7", font = ("Helvetica Bold 16",28))
-        heading_2.place(x = 250, y = 350)
-        counter = 0
-
-        label_2 = Label(master, bg="yellow", height=6, width=30, relief="raised")
-        label_2.place(x=1000, y=150)
+        # master = Tk()
+        # master.geometry("1280x860")
+        # master.config(background="#FFDCE7")
+        # heading_1 = Label(master, text="CSE-202 | DataBase Management Systems, Winter-2022", height=2, bg="#B7E9F7",
+        #                 font=("Ink Free", 32), borderwidth=5, relief="raised")
+        # heading_1.pack(side="top", fill="x")
+        #
+        # heading_2 = Label(master, text = "To view the full application,click the button below!", height = 2, bg="#FFDCE7", font = ("Helvetica Bold 16",28))
+        # heading_2.place(x = 250, y = 350)
+        # counter = 0
+        #
+        # label_2 = Label(master, bg="yellow", height=6, width=30, relief="raised")
+        # label_2.place(x=1000, y=150)
 
 
         def raise_frame(frame):
             frame.tkraise()
 
-        def counter_label(label):  # for counter on the main page
-            counter = 0
+        # def counter_label(label):  # for counter on the main page
+        #     counter = 0
+        #
+        #     def count():
+        #         global counter
+        #         counter += 1
+        #         label.config(text=str(counter))
+        #         label.after(1000, count)
+        #         if counter == 5:
+        #             master.iconify()
+        #
+        #     count()
 
-            def count():
-                global counter
-                counter += 1
-                label.config(text=str(counter))
-                label.after(1000, count)
-                if counter == 5:
-                    master.iconify()
 
-            count()
-
-
-        label = Label(master, fg="dark green", bg="white", width=20)
-        label.place(x=1040, y=190)
-        counter_label(label)
+        # label = Label(master, fg="dark green", bg="white", width=20)
+        # label.place(x=1040, y=190)
+        # counter_label(label)
         def f1():
             master_new = Tk()
 
@@ -405,10 +407,11 @@ if __name__ == '__main__':
             frame2.forget()
             frames["next"] = frame2
             master_new.mainloop()
-        button_1 = Button(master, text="Click Me!", height = 2,width = 10,bg="light blue", command=f1)
-        button_1.place(x=600, y=450)
+        # button_1 = Button(master, text="Click Me!", height = 2,width = 10,bg="light blue", command=f1)
+        # button_1.place(x=600, y=450)
+        f1()
         # heading_3 = Label(master, text = "click the button below!", height = 2,bg="#FFDCE7", font = ("Helvetica Bold 16",28))
         # heading_3.place(x = 500, y = 420)
-        master.mainloop()
+        # master.mainloop()
 
 
