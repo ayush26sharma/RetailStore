@@ -10,6 +10,107 @@ from PIL import ImageTk,Image
 import matplotlib.pyplot as plt
 
 
+class Customer:
+    def __init__(self, root, cid):
+        self.root = root
+        self.cid = cid
+        self.customer_frame = self.get_frame_customer()
+
+    def back(self):
+        fc = frame_stack.pop()
+        frame_stack[-1].pack(side="top", fill="both")
+        fc.forget()
+
+    def get_frame_customer(self):
+
+        frame = Frame(self.root, bg="#FFDCE7")
+
+
+
+        heading2 = Label(frame, bg="deep sky blue", height=30, width=100, relief="raised", borderwidth=3)
+        heading2.config(highlightbackground="purple", highlightthickness=2)
+        # heading2.pack(padx=250, pady=150)
+        heading_2 = Label(frame, text="Customer", height=2, bg="#FFDCE7", font=("Helvetica Bold 16", 28))
+        heading_2.pack(padx=0)
+        button = Button(frame, text="cart", bg="deep sky blue", fg="black", font=("Arial", 16),
+                        command=lambda: open_cart(cid))
+        button.place(x=1050, y=10)
+        button = Button(frame, text="logout", bg="deep sky blue", fg="black", font=("Arial", 16),
+                        command=back)
+        button.place(x=1150, y=10)
+
+        button = Button(frame, text="Add to cart", bg="deep sky blue", fg="black", font=("Arial", 16),
+                        command=back)
+        button.place(x=1050, y=500)
+
+        canvas = Canvas(frame, height=800)
+        framescroll = Frame(canvas, bg="#FFDCE7")
+        canvas.create_window((0, 0), window=framescroll, anchor='nw')
+        # canvas.configure(scrollregion=(0, 0, 0, 1000))
+        canvas.pack(side="left", fill="y", padx=100, pady=20)
+
+        vbar = Scrollbar(frame, orient='vertical', command=canvas.yview)
+
+        vbar.pack(side='right', fill='y')
+
+        canvas.config(yscrollcommand=vbar.set)
+        framescroll.bind('<Configure>',
+                         lambda event, canvas=canvas: canvas.configure(scrollregion=canvas.bbox('all')))
+        cur = mydb.cursor()
+        sql = "SELECT PRODUCT_ID,PRODUCT_NAME,UNIT_PRICE,DISCOUNT,UNIT_WEIGHT from retailstore.PRODUCT;"
+        cur.execute(sql)
+        res = cur.fetchall()
+        res = [[str(2 * i), 2 * i + 1, 'product', 'name'] for i in range(100)]
+        r, c = 0, 0
+        order = {}
+        order_label = {}
+
+        def orderneg(pid):
+            if pid not in order or order[pid] == 0:
+                return
+            order[pid] -= 1
+            order_label[pid].config(text=str(order[pid]))
+
+        def orderpos(pid):
+            if pid not in order:
+                order[pid] = 0
+            order[pid] += 1
+            order_label[pid].config(text=str(order[pid]))
+
+        for i in res:
+            for j in i:
+                label = Label(framescroll, text=j, bg="deep sky blue", fg="black", font=("Arial", 16))
+                label.grid(row=r, column=c)
+                c += 1
+
+            buttonneg = Button(framescroll, text="-", bg="deep sky blue", fg="black", font=("Arial", 16),
+                               command=lambda pid=i[0]: orderneg(pid))
+            buttonneg.grid(row=r, column=c)
+            c += 1
+            label = Label(framescroll, text="0", bg="deep sky blue", fg="black", font=("Arial", 16))
+            order_label[i[0]] = label
+            label.grid(row=r, column=c)
+            c += 1
+            buttonpos = Button(framescroll, text="+", bg="deep sky blue", fg="black", font=("Arial", 16),
+                               command=lambda pid=i[0]: orderpos(pid))
+            buttonpos.grid(row=r, column=c)
+            c += 1
+            r += 1
+            c = 0
+
+        frame.place(x=0, y=118)
+        frame.pack(side="top", fill="both")
+        frame.forget()
+        return frame
+
+frame_stack = []
+def back():
+    # frame3.pack(side = "top", fill = "both")
+    # frame.forget()
+    fc = frame_stack.pop()
+    frame_stack[-1].pack(side="top", fill="both")
+    fc.forget()
+
 if __name__ == '__main__':
     mydb = pm.connect(host="localhost",  # setting up connection
                       user="root",
@@ -131,15 +232,126 @@ if __name__ == '__main__':
             heading6 = Entry(frame3, textvariable=1, width=30, show="*")
             heading6.place(x=620, y=380)
             def back():
-                frame1.pack(side = "top", fill = "both")
-                frame3.forget()
+                # frame1.pack(side = "top", fill = "both")
+                # frame3.forget()
+                print(frame_stack)
+                fc = frame_stack.pop()
+                frame_stack[-1].pack(side = "top", fill = "both")
+                fc.forget()
 
-            def get_frame_customer(master):
+            def get_frame_cart(master,cid):
+
+                frame = Frame(master, bg="#FFDCE7")
+
+                def back():
+                    # frame3.pack(side="top", fill="both")
+                    # frame.forget()
+
+                    fc = frame_stack.pop()
+                    frame_stack[-1].pack(side="top", fill="both")
+                    fc.forget()
+
+                def logout():
+                    # frame3.pack(side="top", fill="both")
+                    # frame.forget()
+
+                    fc = frame_stack.pop()
+                    frame_stack.pop()
+                    frame_stack[-1].pack(side="top", fill="both")
+                    fc.forget()
+
+                heading2 = Label(frame, bg="deep sky blue", height=30, width=100, relief="raised", borderwidth=3)
+                heading2.config(highlightbackground="purple", highlightthickness=2)
+                # heading2.pack(padx=250, pady=150)
+                heading_2 = Label(frame, text="Cart", height=2, bg="#FFDCE7", font=("Helvetica Bold 16", 28))
+                heading_2.pack(padx=0)
+                button = Button(frame, text="back", bg="deep sky blue", fg="black", font=("Arial", 16),
+                                command=back)
+                button.place(x=1050, y=10)
+                button = Button(frame, text="logout", bg="deep sky blue", fg="black", font=("Arial", 16),
+                                command=logout)
+                button.place(x=1150, y=10)
+
+                button = Button(frame, text="Add to cart", bg="deep sky blue", fg="black", font=("Arial", 16),
+                                command=back)
+                button.place(x=1050, y=500)
+
+                canvas = Canvas(frame, height=800)
+                framescroll = Frame(canvas, bg="#FFDCE7")
+                canvas.create_window((0, 0), window=framescroll, anchor='nw')
+                # canvas.configure(scrollregion=(0, 0, 0, 1000))
+                canvas.pack(side="left", fill="y", padx=100, pady=20)
+
+                vbar = Scrollbar(frame, orient='vertical', command=canvas.yview)
+
+                vbar.pack(side='right', fill='y')
+
+                canvas.config(yscrollcommand=vbar.set)
+                framescroll.bind('<Configure>',
+                                 lambda event, canvas=canvas: canvas.configure(scrollregion=canvas.bbox('all')))
+                # products =
+                cur = mydb.cursor()
+                sql = "SELECT PRODUCT_ID,PRODUCT_NAME,UNIT_PRICE,DISCOUNT,UNIT_WEIGHT from retailstore.PRODUCT;"
+                cur.execute(sql)
+                res = cur.fetchall()
+                res = [[str(2 * i), 2 * i + 1, 'product', 'name'] for i in range(100)]
+                r, c = 0, 0
+                order = {}
+                order_label = {}
+
+                def orderneg(pid):
+                    if pid not in order or order[pid] == 0:
+                        return
+                    order[pid] -= 1
+                    order_label[pid].config(text=str(order[pid]))
+
+                def orderpos(pid):
+                    if pid not in order:
+                        order[pid] = 0
+                    order[pid] += 1
+                    order_label[pid].config(text=str(order[pid]))
+
+                for i in res:
+                    for j in i:
+                        label = Label(framescroll, text=j, bg="deep sky blue", fg="black", font=("Arial", 16))
+                        label.grid(row=r, column=c)
+                        c += 1
+
+                    buttonneg = Button(framescroll, text="-", bg="deep sky blue", fg="black", font=("Arial", 16),
+                                       command=lambda pid=i[0]: orderneg(pid))
+                    buttonneg.grid(row=r, column=c)
+                    c += 1
+                    label = Label(framescroll, text="0", bg="deep sky blue", fg="black", font=("Arial", 16))
+                    order_label[i[0]] = label
+                    label.grid(row=r, column=c)
+                    c += 1
+                    buttonpos = Button(framescroll, text="+", bg="deep sky blue", fg="black", font=("Arial", 16),
+                                       command=lambda pid=i[0]: orderpos(pid))
+                    buttonpos.grid(row=r, column=c)
+                    c += 1
+                    r += 1
+                    c = 0
+
+                frame.place(x=0, y=118)
+                frame.pack(side="top", fill="both")
+                frame.forget()
+                return frame
+            def open_cart(cid):
+                frame_cart = get_frame_cart(master_new,cid)
+                frame_cart.pack(side="top", fill="both")
+                frame_stack[-1].forget()
+                frame_stack.append(frame_cart)
+
+            def get_frame_customer(master,cid):
 
                 frame = Frame(master, bg="#FFDCE7")
                 def back():
-                    frame3.pack(side = "top", fill = "both")
-                    frame.forget()
+                    # frame3.pack(side = "top", fill = "both")
+                    # frame.forget()
+                    fc = frame_stack.pop()
+                    frame_stack[-1].pack(side="top", fill="both")
+                    fc.forget()
+
 
                 heading2 = Label(frame, bg="deep sky blue", height=30, width=100, relief="raised", borderwidth=3)
                 heading2.config(highlightbackground="purple", highlightthickness=2)
@@ -147,7 +359,7 @@ if __name__ == '__main__':
                 heading_2 = Label(frame, text="Customer", height=2, bg="#FFDCE7", font=("Helvetica Bold 16", 28))
                 heading_2.pack(padx=0)
                 button = Button(frame, text="cart", bg="deep sky blue", fg="black", font=("Arial", 16),
-                                command=lambda: True)
+                                command=lambda: open_cart(cid))
                 button.place(x=1050, y=10)
                 button = Button(frame, text="logout", bg="deep sky blue", fg="black", font=("Arial", 16),
                                 command=back)
@@ -170,12 +382,10 @@ if __name__ == '__main__':
 
                 canvas.config(yscrollcommand=vbar.set)
                 framescroll.bind('<Configure>', lambda event, canvas=canvas: canvas.configure(scrollregion=canvas.bbox('all')))
-                # products =
                 cur=mydb.cursor()
                 sql = "SELECT PRODUCT_ID,PRODUCT_NAME,UNIT_PRICE,DISCOUNT,UNIT_WEIGHT from retailstore.PRODUCT;"
                 cur.execute(sql)
                 res = cur.fetchall()
-                print(res)
                 res = [[str(2*i),2*i+1,'product','name'] for i in range(100)]
                 r,c  = 0,0
                 order ={}
@@ -218,11 +428,15 @@ if __name__ == '__main__':
                 frame.pack(side="top", fill="both")
                 frame.forget()
                 return frame
+
+
             def callbac():
                 #todo
-                frame_customer = get_frame_customer(master_new)
+
+                frame_customer = get_frame_customer(master_new,1)
                 frame_customer.pack(side="top", fill="both")
                 frame3.forget()
+                frame_stack.append(frame_customer)
                 return
                 passw = heading6.get()
                 user = heading4.get()
@@ -266,6 +480,7 @@ if __name__ == '__main__':
             def f3():
                 frame3.pack(side = "top", fill = "both")
                 frame1.forget()
+                frame_stack.append(frame3)
 
             frame4 = Frame(master_new,bg = "#FFDCE7")
             heading2 = Label(frame4, bg="deep sky blue", height=30, width=100, relief="raised", borderwidth=3)
@@ -289,10 +504,107 @@ if __name__ == '__main__':
             heading6 = Entry(frame4, textvariable=1, width=30, show="*")
             heading6.place(x=620, y=380)
             def back1():
-                frame1.pack(side = "top", fill = "both")
-                frame4.forget()
+                # frame1.pack(side = "top", fill = "both")
+                # frame4.forget()
+                fc = frame_stack.pop()
+                frame_stack[-1].pack(side="top", fill="both")
+                fc.forget()
+
+            def get_frame_employee(master,cid):
+
+                frame = Frame(master, bg="#FFDCE7")
+                def back():
+                    # frame3.pack(side = "top", fill = "both")
+                    # frame.forget()
+                    fc = frame_stack.pop()
+                    frame_stack[-1].pack(side="top", fill="both")
+                    fc.forget()
+
+
+                heading2 = Label(frame, bg="deep sky blue", height=30, width=100, relief="raised", borderwidth=3)
+                heading2.config(highlightbackground="purple", highlightthickness=2)
+                # heading2.pack(padx=250, pady=150)
+                heading_2 = Label(frame, text="Employee", height=2, bg="#FFDCE7", font=("Helvetica Bold 16", 28))
+                heading_2.pack(padx=0)
+                # button = Button(frame, text="cart", bg="deep sky blue", fg="black", font=("Arial", 16),
+                #                 command=lambda: open_cart(cid))
+                # button.place(x=1050, y=10)
+                button = Button(frame, text="logout", bg="deep sky blue", fg="black", font=("Arial", 16),
+                                command=back)
+                button.place(x=1150, y=10)
+
+                button = Button(frame, text="Add to Inventory", bg="deep sky blue", fg="black", font=("Arial", 16),
+                                command=back)
+                button.place(x=1050, y=500)
+
+                canvas = Canvas(frame, height=800)
+                framescroll = Frame(canvas, bg="#FFDCE7")
+                canvas.create_window((0, 0), window=framescroll, anchor='nw')
+                # canvas.configure(scrollregion=(0, 0, 0, 1000))
+                canvas.pack(side="left", fill="y",padx = 100,pady = 20)
+
+                vbar = Scrollbar(frame, orient='vertical', command=canvas.yview)
+
+                vbar.pack(side='right', fill='y')
+
+
+                canvas.config(yscrollcommand=vbar.set)
+                framescroll.bind('<Configure>', lambda event, canvas=canvas: canvas.configure(scrollregion=canvas.bbox('all')))
+                cur=mydb.cursor()
+                sql = "SELECT PRODUCT_ID,PRODUCT_NAME,UNIT_PRICE,DISCOUNT,UNIT_WEIGHT from retailstore.PRODUCT;"
+                cur.execute(sql)
+                res = cur.fetchall()
+                res = [[str(2*i),2*i+1,'product','name'] for i in range(100)]
+                r,c  = 0,0
+                order ={}
+                order_label = {}
+
+                def orderneg(pid):
+                    if pid not in order or order[pid] == 0:
+                        return
+                    order[pid] -= 1
+                    order_label[pid].config(text=str(order[pid]))
+
+
+                def orderpos(pid):
+                    if pid not in order:
+                        order[pid] = 0
+                    order[pid] += 1
+                    order_label[pid].config(text=str(order[pid]))
+                for i in res:
+                    for j in i:
+                        label = Label(framescroll, text=j, bg="deep sky blue", fg="black", font=("Arial", 16))
+                        label.grid(row=r, column=c)
+                        c+=1
+
+                    buttonneg = Button(framescroll, text="-", bg="deep sky blue", fg="black", font=("Arial", 16),
+                                command=lambda pid = i[0]: orderneg(pid))
+                    buttonneg.grid(row=r, column=c)
+                    c+=1
+                    label = Label(framescroll, text="0", bg="deep sky blue", fg="black", font=("Arial", 16))
+                    order_label[i[0]] = label
+                    label.grid(row=r, column=c)
+                    c+=1
+                    buttonpos = Button(framescroll, text="+", bg="deep sky blue", fg="black", font=("Arial", 16),
+                                command=lambda pid = i[0]: orderpos(pid))
+                    buttonpos.grid(row=r, column=c)
+                    c+=1
+                    r+=1
+                    c=0
+
+                frame.place(x=0, y=118)
+                frame.pack(side="top", fill="both")
+                frame.forget()
+                return frame
+
+
 
             def callbac1():
+                fe = get_frame_employee(master_new,1)
+                fe.pack(side="top", fill="both")
+                frame_stack[-1].forget()
+                frame_stack.append(fe)
+                return
                 passw = heading6.get()
                 user = heading4.get()
                 if user in dict_employee.keys() and passw in dict_employee.values() and dict_employee[user]==passw:
@@ -333,6 +645,7 @@ if __name__ == '__main__':
             def f4():
                 frame4.pack(side = "top", fill = "both")
                 frame1.forget()
+                frame_stack.append(frame4)
 
             frame5 = Frame(master_new,bg = "#FFDCE7")
             heading2 = Label(frame5, bg="deep sky blue", height=40, width=100, relief="raised", borderwidth=3)
@@ -376,6 +689,15 @@ if __name__ == '__main__':
                 elif name.isalnum() == True:
                     messagebox.askokcancel("Error", "Enter correctly!", parent=frame5)
                     ent2.delete(first=0, last=100)
+
+            def back():
+
+                fc = frame_stack.pop()
+                frame_stack[-1].pack(side="top", fill="both")
+                fc.forget()
+            button_back = Button(frame5, text="Back", bg="orange", bd=2, relief="groove", height=2, width=9,
+                              font=("Arial", 15), command=back)
+            button_back.place(x=1050, y=10)
             but = Button(frame5, text="Save", fg="red", command=chk_fname)
             but.place(x=930, y=210)
             heading5 = Label(frame5, text="Last Name", bg="IndianRed1", height=3, width=20, font=("Arial", 18))
@@ -443,6 +765,7 @@ if __name__ == '__main__':
             def f5():
                 frame5.pack(side = "top", fill = "both")
                 frame1.forget()
+                frame_stack.append(frame5)
 
             master_new.geometry("1280x860")
             master_new.config(background="#FFDCE7")
@@ -480,6 +803,7 @@ if __name__ == '__main__':
             def f2():
                 frame2.pack(side = "top", fill = "both")
                 frame1.forget()
+                frame_stack.append(frame2)
             button_1 = Button(frame1, text="Click Me! f1", height=2, width=10, bg="light blue", command=f2)
             button_1.place(x=600, y=450)
             button_1.pack()
@@ -489,8 +813,11 @@ if __name__ == '__main__':
             heading_2 = Label(frame2, text="CSE-202 | DataBase Management Systems, Winter-2022", height=2, bg="#B7E9F7",
                               font=("Ink Free", 32), borderwidth=5, relief="raised")
             def f3():
-                frame1.pack(side = "top", fill = "both")
-                frame2.forget()
+                # frame1.pack(side = "top", fill = "both")
+                # frame2.forget()
+                fc = frame_stack.pop()
+                frame_stack[-1].pack(side="top", fill="both")
+                fc.forget()
             heading_2.pack(side="top", fill="x")
             frame2.place(x = 0, y = 118)
             button_2 = Button(frame2, text="Click Me! f2", height=2, width=10, bg="light blue", command=f3)
@@ -500,7 +827,7 @@ if __name__ == '__main__':
             frame2.forget()
             frames["next"] = frame2
 
-
+            frame_stack.append(frame1)
             master_new.mainloop()
         # button_1 = Button(master, text="Click Me!", height = 2,width = 10,bg="light blue", command=f1)
         # button_1.place(x=600, y=450)
@@ -508,5 +835,6 @@ if __name__ == '__main__':
         # heading_3 = Label(master, text = "click the button below!", height = 2,bg="#FFDCE7", font = ("Helvetica Bold 16",28))
         # heading_3.place(x = 500, y = 420)
         # master.mainloop()
+
 
 
