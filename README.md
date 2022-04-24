@@ -8,4 +8,4 @@ Aayush Gakhar
 
 Ayush Sharma
 
-Jyana Pahuja
+Jayan Pahuja
